@@ -21,42 +21,48 @@ def show_environment(c):
 def virtualenv(c):
     if not os.getenv("VIRTUAL_ENV") and not Path("venv").exists:
         venv.create("venv", with_pip=True)
-    c.virtualenv_root = Path(os.getenv("VIRTUAL_ENV", "venv"))
-    c.python = lambda command, **kwargs: c.run(
-        f"{c.virtualenv_root / 'bin' / 'python'} {command}", **kwargs
-    )
-    c.pip = lambda command, **kwargs: c.run(
-        f"{c.virtualenv_root / 'bin' / 'pip'} {command}", **kwargs
-    )
+
+    c.virtual_env = Path(os.getenv("VIRTUAL_ENV", "venv"))
+
+    venv_path = c.virtual_env.resolve() / "bin"
+    if str(venv_path) not in os.getenv("PATH"):
+        print(f"\033[1;37mentering virtualenv at `{c.virtual_env}`\033[0m")
+        os.environ["PATH"] = f"{venv_path}:{os.getenv('PATH')}"
+
+    # check that we are using the correct version of python in .run()
+    which_python = Path(c.run("which python", hide=True).stdout.strip())
+    expected_python = c.virtual_env / "bin" / "python"
+    assert which_python.samefile(expected_python), \
+        f"expected `which python` to return {expected_python}, instead got {which_python}"
 
 
 @task(virtualenv)
 def upgrade_pip(c):
-    c.pip("install --upgrade pip")
+    c.run("pip install --upgrade pip")
 
 
 @task(virtualenv, upgrade_pip)
 def requirements(c):
     """Install python requirements"""
-    c.pip("install -r requirements.txt")
+    c.run("pip install -r requirements.txt")
 
 
 @task(virtualenv, upgrade_pip)
 def requirements_dev(c):
     """Install python app development requirements"""
     if Path("requirements.txt").exists():
-        c.pip("install -r requirements.txt -r requirements-dev.txt")
+        c.run("pip install -r requirements.txt -r requirements-dev.txt")
     else:
-        c.pip("install -r requirements-dev.txt")
+        c.run("pip install -r requirements-dev.txt")
 
 
 @task(virtualenv, requirements_dev)
 def freeze_requirements(c):
     """Save python dependency tree in requirements files"""
     if Path("requirements.in").exists():
-        c.run(f"{c.virtualenv_root / 'bin' / 'pip-compile'} requirements.in")
+        c.run(f"pip-compile requirements.in")
     if Path("requirements-dev.in").exists():
-        c.run(f"{c.virtualenv_root / 'bin' / 'pip-compile'} requirements-dev.in")
+        c.run(f"pip-compile requirements-dev.in")
 
 
 @task
@@ -84,13 +90,13 @@ def frontend_build(c, gulp_environment=""):
 @task(virtualenv, requirements_dev)
 def test_flake8(c):
     """Run python code linter"""
-    c.run(f"{c.virtualenv_root / 'bin' / 'flake8'} .")
+    c.run(f"flake8 .")
 
 
 @task(virtualenv, requirements_dev, aliases=["test-unit"])
 def test_python(c, pytest_args=""):
     """Run python unit tests"""
-    c.run(f"{c.virtualenv_root / 'bin' / 'py.test'} {pytest_args}")
+    c.run(f"pytest {pytest_args}")
 
 
 @task(frontend_build)
@@ -127,7 +133,7 @@ def docker_push(c, release_name=""):
 @task(show_environment, virtualenv)
 def run_app(c):
     """Run app"""
-    c.run(f"{c.virtualenv_root / 'bin' / 'flask'} run")
+    c.run(f"flask run")
 
 
 # Create collections for each kind of repo
