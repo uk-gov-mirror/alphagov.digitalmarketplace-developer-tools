@@ -25,4 +25,7 @@ setuptools.setup(
     long_description_content_type=long_description_content_type,
     packages=setuptools.find_packages(),
     python_requires="~=3.6",
+    install_requires=[
+        "invoke",
+    ],
 )

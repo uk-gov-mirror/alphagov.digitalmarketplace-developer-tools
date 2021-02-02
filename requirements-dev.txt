@@ -6,8 +6,16 @@
 #
 -e file:.                 # via -r requirements-dev.in
 click==7.1.2              # via pip-tools
+flake8==3.8.4             # via -r requirements-dev.in
+importlib-metadata==3.3.0  # via flake8
+invoke==1.4.1             # via digitalmarketplace-developer-tools
+mccabe==0.6.1             # via flake8
 pip-tools==5.4.0          # via -r requirements-dev.in
+pycodestyle==2.6.0        # via flake8
+pyflakes==2.2.0           # via flake8
 six==1.15.0               # via pip-tools
+typing-extensions==3.7.4.3  # via importlib-metadata
+zipp==3.4.0               # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
