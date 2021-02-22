@@ -30,11 +30,13 @@ def virtualenv(c):
         print(f"\033[1;37mentering virtualenv at `{c.virtual_env}`\033[0m")
         os.environ["PATH"] = f"{venv_path}:{os.getenv('PATH')}"
 
-    # check that we are using the correct version of python in .run()
-    which_python = Path(c.run("which python", hide=True).stdout.strip())
-    expected_python = c.virtual_env / "bin" / "python"
-    assert which_python.samefile(expected_python), \
-        f"expected `which python` to return {expected_python}, instead got {which_python}"
+    # skip if dry run
+    if not c.config["run"].get("dry"):
+        # check that we are using the correct version of python in .run()
+        which_python = Path(c.run("which python", hide=True).stdout.strip())
+        expected_python = c.virtual_env / "bin" / "python"
+        assert which_python.samefile(expected_python), \
+            f"expected `which python` to return {expected_python}, instead got {which_python}"
 
 
 @task(virtualenv)
