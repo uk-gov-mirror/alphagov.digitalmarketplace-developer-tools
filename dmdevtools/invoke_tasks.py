@@ -19,7 +19,8 @@ def show_environment(c):
 
 @task
 def virtualenv(c):
-    if not os.getenv("VIRTUAL_ENV") and not Path("venv").exists:
+    if not os.getenv("VIRTUAL_ENV") and not Path("venv").exists():
+        print(f"\033[1;37mcreating virtualenv at `venv`\033[0m")
         venv.create("venv", with_pip=True)
 
     c.virtual_env = Path(os.getenv("VIRTUAL_ENV", "venv"))
