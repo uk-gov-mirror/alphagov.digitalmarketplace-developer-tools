@@ -14,7 +14,7 @@ help:
 
 .PHONY: bootstrap
 bootstrap:
-	pip install git+https://github.com/alphagov/digitalmarketplace-developer-tools.git#egg=digitalmarketplace-developer-tools
+	pip install digitalmarketplace-developer-tools
 	@echo done
 	-@[ -z "$$TERM" ] || tput setaf 2  # green
 	@echo 2>1 dmdevtools has been installed globally, run developer tasks with '`invoke`'
