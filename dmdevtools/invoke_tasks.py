@@ -71,10 +71,23 @@ def freeze_requirements(c):
 @task
 def npm_install(c):
     """Install node.js dependencies"""
-    # If dependencies in the package lock do not match those in package.json,
-    # npm ci will exit with an error, instead of updating the package lock.
-    # (https://docs.npmjs.com/cli/ci.html)
-    c.run("npm ci")
+    if os.getenv("CI") == "true":
+        # On CI/GitHub Actions, install with a clean slate
+        # (https://docs.npmjs.com/cli/ci.html)
+        #
+        # If dependencies in the package lock do not match those in package.json,
+        # npm ci will exit with an error, instead of updating the package lockfile.
+        #
+        # If node_modules already exists, it will be removed.
+        c.run("npm ci")
+    else:
+        # On developer machine, install without updating package.json or
+        # package-lock.json.
+        #
+        # We want to save our disk drives and avoid reinstalling everything everytime,
+        # but we also want to avoid updating package lock files without realising it,
+        # so we add the `--no-save` option.
+        c.run("npm install --no-save")
 
 
 @task(npm_install)
