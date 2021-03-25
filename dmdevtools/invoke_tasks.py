@@ -26,22 +26,37 @@ def virtualenv(c):
     c.virtual_env = Path(os.getenv("VIRTUAL_ENV", "venv"))
 
     venv_path = c.virtual_env.resolve() / "bin"
-    if str(venv_path) not in os.getenv("PATH"):
+    if not os.environ["PATH"].startswith(str(venv_path)):
         print(f"\033[1;37mentering virtualenv at `{c.virtual_env}`\033[0m")
         os.environ["PATH"] = f"{venv_path}:{os.getenv('PATH')}"
 
     # skip if dry run
     if not c.config["run"].get("dry"):
-        # check that we are using the correct version of python in .run()
+        # we want to be sure that we are going to use python/pip from the venv
         which_python = Path(c.run("which python", hide=True).stdout.strip())
         expected_python = c.virtual_env / "bin" / "python"
         assert which_python.samefile(expected_python), \
-            f"expected `which python` to return {expected_python}, instead got {which_python}"
+            f"expected `which python` to return {expected_python}, instead got {which_python}" \
+            f"\nPATH={os.environ['PATH']}"
 
 
 @task(virtualenv)
 def upgrade_pip(c):
     c.run("pip install --upgrade pip")
+
+
+def install_python_requirements(c, dev: bool = True):
+    if dev:
+        requirements_files = Path().glob("requirements*.txt")
+    else:
+        requirements_files = Path("requirements.txt")
+
+    if os.getenv("CI") == "true":
+        install_command = f"pip install {' '.join(f'-r {f}' for f in requirements_files)}"
+    else:
+        install_command = f"pip-sync {' '.join(map(str, requirements_files))}"
+
+    c.run(install_command)
 
 
 @task(virtualenv, upgrade_pip)
@@ -53,10 +68,7 @@ def requirements(c):
 @task(virtualenv, upgrade_pip)
 def requirements_dev(c):
     """Install python app development requirements"""
-    if Path("requirements.txt").exists():
-        c.run("pip install -r requirements.txt -r requirements-dev.txt")
-    else:
-        c.run("pip install -r requirements-dev.txt")
+    install_python_requirements(c, dev=True)
 
 
 @task(virtualenv, requirements_dev)
@@ -93,6 +105,10 @@ def npm_install(c):
 @task(npm_install)
 def frontend_build(c, gulp_environment=""):
     """Build frontend assets using node.js"""
+    if not Path("gulpfile.js").exists:
+        c.run("npm run build")
+        return
+
     if not gulp_environment:
         gulp_environment = (
             "development"
