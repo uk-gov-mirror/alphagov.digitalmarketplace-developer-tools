@@ -20,7 +20,7 @@ def show_environment(c):
 @task
 def virtualenv(c):
     if not os.getenv("VIRTUAL_ENV") and not Path("venv").exists():
-        print(f"\033[1;37mcreating virtualenv at `venv`\033[0m")
+        print("\033[1;37mcreating virtualenv at `venv`\033[0m")
         venv.create("venv", with_pip=True)
 
     c.virtual_env = Path(os.getenv("VIRTUAL_ENV", "venv"))
@@ -75,9 +75,9 @@ def requirements_dev(c):
 def freeze_requirements(c):
     """Save python dependency tree in requirements files"""
     if Path("requirements.in").exists():
-        c.run(f"pip-compile requirements.in")
+        c.run("pip-compile requirements.in")
     if Path("requirements-dev.in").exists():
-        c.run(f"pip-compile requirements-dev.in")
+        c.run("pip-compile requirements-dev.in")
 
 
 @task
@@ -122,7 +122,7 @@ def frontend_build(c, gulp_environment=""):
 @task(virtualenv, requirements_dev)
 def test_flake8(c):
     """Run python code linter"""
-    c.run(f"flake8 .")
+    c.run("flake8 .")
 
 
 @task(virtualenv, requirements_dev, aliases=["test-unit"])
@@ -165,7 +165,7 @@ def docker_push(c, release_name=""):
 @task(show_environment, virtualenv)
 def run_app(c):
     """Run app"""
-    c.run(f"flask run")
+    c.run("flask run")
 
 
 # Create collections for each kind of repo
