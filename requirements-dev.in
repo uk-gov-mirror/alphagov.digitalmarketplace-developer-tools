@@ -1,5 +1,6 @@
 -e file:.
 
 flake8
+mypy
 
 pip-tools
