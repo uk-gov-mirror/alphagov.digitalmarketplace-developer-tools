@@ -1,6 +1,7 @@
 import os
 import venv
 from pathlib import Path
+from typing import List
 
 from invoke import Collection, task
 
@@ -46,10 +47,11 @@ def upgrade_pip(c):
 
 
 def install_python_requirements(c, dev: bool = True):
+    requirements_files: List[Path]
     if dev:
-        requirements_files = Path().glob("requirements*.txt")
+        requirements_files = list(Path().glob("requirements*.txt"))
     else:
-        requirements_files = Path("requirements.txt")
+        requirements_files = [Path("requirements.txt")]
 
     if os.getenv("CI") == "true":
         install_command = f"pip install {' '.join(f'-r {f}' for f in requirements_files)}"
