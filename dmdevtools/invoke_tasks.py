@@ -125,6 +125,12 @@ def test_flake8(c):
     c.run("flake8 .")
 
 
+@task(virtualenv, requirements_dev)
+def test_mypy(c):
+    """Run python code linter"""
+    c.run("mypy")  # requires mypy.ini
+
+
 @task(virtualenv, requirements_dev, aliases=["test-unit"])
 def test_python(c, pytest_args=""):
     """Run python unit tests"""
@@ -178,6 +184,7 @@ _common_tasks = [
     requirements_dev,
     freeze_requirements,
     test_flake8,
+    test_mypy,
     test_python,
     show_environment,
 ]
