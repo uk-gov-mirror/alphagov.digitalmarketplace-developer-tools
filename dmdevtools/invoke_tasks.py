@@ -27,18 +27,8 @@ def virtualenv(c):
     c.virtual_env = Path(os.getenv("VIRTUAL_ENV", "venv"))
 
     venv_path = c.virtual_env.resolve() / "bin"
-    if not os.environ["PATH"].startswith(str(venv_path)):
-        print(f"\033[1;37mentering virtualenv at `{c.virtual_env}`\033[0m")
-        os.environ["PATH"] = f"{venv_path}:{os.getenv('PATH')}"
-
-    # skip if dry run
-    if not c.config["run"].get("dry"):
-        # we want to be sure that we are going to use python/pip from the venv
-        which_python = Path(c.run("which python", hide=True).stdout.strip())
-        expected_python = c.virtual_env / "bin" / "python"
-        assert which_python.samefile(expected_python), \
-            f"expected `which python` to return {expected_python}, instead got {which_python}" \
-            f"\nPATH={os.environ['PATH']}"
+    print(f"\033[1;37mentering virtualenv at `{c.virtual_env}`\033[0m")
+    os.environ["PATH"] = f"{venv_path}"
 
 
 @task(virtualenv)
