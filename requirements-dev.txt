@@ -5,17 +5,25 @@
 #    pip-compile requirements-dev.in
 #
 -e file:.                 # via -r requirements-dev.in
+attrs==20.3.0             # via pytest
 click==7.1.2              # via pip-tools
 flake8==3.8.4             # via -r requirements-dev.in
-importlib-metadata==3.3.0  # via flake8
-invoke==1.4.1             # via digitalmarketplace-developer-tools
+importlib-metadata==3.3.0  # via flake8, pluggy, pytest
+iniconfig==1.1.1          # via pytest
+invoke==1.5.0             # via -r requirements-dev.in, digitalmarketplace-developer-tools
 mccabe==0.6.1             # via flake8
 mypy-extensions==0.4.3    # via mypy
 mypy==0.812               # via -r requirements-dev.in
+packaging==20.9           # via pytest
 pip-tools==5.4.0          # via -r requirements-dev.in
+pluggy==0.13.1            # via pytest
+py==1.10.0                # via pytest
 pycodestyle==2.6.0        # via flake8
 pyflakes==2.2.0           # via flake8
+pyparsing==2.4.7          # via packaging
+pytest==6.2.3             # via -r requirements-dev.in
 six==1.15.0               # via pip-tools
+toml==0.10.2              # via pytest
 typed-ast==1.4.3          # via mypy
 typing-extensions==3.7.4.3  # via importlib-metadata, mypy
 zipp==3.4.0               # via importlib-metadata
