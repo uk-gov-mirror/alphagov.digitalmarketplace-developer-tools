@@ -31,9 +31,13 @@ def virtualenv(c):
     os.environ["PATH"] = f"{venv_path}"
 
 
-@task(virtualenv)
-def upgrade_pip(c):
-    c.run("pip install --upgrade pip")
+@task(virtualenv, aliases=["upgrade-pip"])
+def install_pip_tools(c):
+    c.run("pip install --upgrade pip wheel")
+
+    pip_sync_installed = c.run("pip show pip-tools", warn=True, hide=True).ok
+    if not pip_sync_installed:
+        c.run("pip install pip-tools")
 
 
 def install_python_requirements(c, dev: bool = True):
@@ -43,21 +47,16 @@ def install_python_requirements(c, dev: bool = True):
     else:
         requirements_files = [Path("requirements.txt")]
 
-    if os.getenv("CI") == "true":
-        install_command = f"pip install {' '.join(f'-r {f}' for f in requirements_files)}"
-    else:
-        install_command = f"pip-sync {' '.join(map(str, requirements_files))}"
-
-    c.run(install_command)
+    c.run(f"pip-sync {' '.join(map(str, requirements_files))}")
 
 
-@task(virtualenv, upgrade_pip)
+@task(virtualenv, install_pip_tools)
 def requirements(c):
     """Install python requirements"""
-    c.run("pip install -r requirements.txt")
+    install_python_requirements(c, dev=False)
 
 
-@task(virtualenv, upgrade_pip)
+@task(virtualenv, install_pip_tools)
 def requirements_dev(c):
     """Install python app development requirements"""
     install_python_requirements(c, dev=True)
@@ -171,7 +170,7 @@ def run_app(c):
 # but it seems to work.
 _common_tasks = [
     virtualenv,
-    upgrade_pip,
+    install_pip_tools,
     requirements,
     requirements_dev,
     freeze_requirements,

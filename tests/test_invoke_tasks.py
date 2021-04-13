@@ -57,13 +57,6 @@ class TestVirtualenv:
 
 
 class TestInstallPythonRequirements:
-    def test_it_runs_pip_sync_if_local_pip_install_if_on_ci(self, ci):
-        context = MockContext(run=Result())
-        install_python_requirements(context)
-
-        command = context.run.call_args[0][0]
-        assert command.startswith("pip install" if ci else "pip-sync")
-
     def test_it_installs_requirements_from_requirements_txt_if_present(
         self, monkeypatch, tmp_path
     ):
