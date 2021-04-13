@@ -7,6 +7,7 @@
 -e file:.                 # via -r requirements-dev.in
 attrs==20.3.0             # via pytest
 click==7.1.2              # via pip-tools
+colored==1.4.2            # via digitalmarketplace-developer-tools
 flake8==3.8.4             # via -r requirements-dev.in
 importlib-metadata==3.3.0  # via flake8, pluggy, pytest
 iniconfig==1.1.1          # via pytest
