@@ -226,7 +226,7 @@ library_tasks = _Collection(
 
 api_app_tasks = _Collection(
     *_common_app_tasks,
-    _empty_task(requirements, run_app, name="run-all", doc="Build and run app"),
+    _empty_task(requirements_dev, run_app, name="run-all", doc="Build and run app"),
     _empty_task(test_flake8, test_python, name="test", doc="Run all tests"),
 )
 
@@ -235,7 +235,7 @@ frontend_app_tasks = _Collection(
     npm_install,
     frontend_build,
     _empty_task(
-        requirements,
+        requirements_dev,
         npm_install,
         frontend_build,
         run_app,
