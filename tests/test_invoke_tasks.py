@@ -25,34 +25,38 @@ def ci(request, monkeypatch):
 
 
 class TestVirtualenv:
-    def test_it_creates_venv_if_it_does_not_exist(self, tmp_path, monkeypatch):
+    @pytest.fixture
+    def context(self, tmp_path):
+        context = MockContext()
+        context["run"]["dry"] = True
+        return context
+
+    def test_it_creates_venv_if_it_does_not_exist(self, tmp_path, monkeypatch, context):
         monkeypatch.chdir(tmp_path)
 
         assert not (tmp_path / "venv").exists()
 
-        virtualenv(MockContext())
+        virtualenv(context)
 
         assert (tmp_path / "venv").exists()
 
-    def test_it_enters_venv(self, tmp_path, monkeypatch):
+    def test_it_enters_venv(self, tmp_path, monkeypatch, context):
         monkeypatch.chdir(tmp_path)
         (tmp_path / "venv").touch()
-        monkeypatch.delenv("PATH")
 
-        virtualenv(MockContext())
+        virtualenv(context)
 
-        assert os.environ["PATH"] == str(tmp_path / "venv" / "bin")
+        assert os.environ["PATH"].startswith(str(tmp_path / "venv" / "bin"))
 
-    def test_it_respects_virtual_env_envvar(self, tmp_path, monkeypatch):
+    def test_it_respects_virtual_env_envvar(self, tmp_path, monkeypatch, context):
         monkeypatch.chdir(tmp_path)
-        monkeypatch.delenv("PATH")
 
         (tmp_path / "venv-py39").touch()
         monkeypatch.setenv("VIRTUAL_ENV", str(tmp_path / "venv-py39"))
 
-        virtualenv(MockContext())
+        virtualenv(context)
 
-        assert os.environ["PATH"] == str(tmp_path / "venv-py39" / "bin")
+        assert os.environ["PATH"].startswith(str(tmp_path / "venv-py39" / "bin"))
         assert not (tmp_path / "venv").exists()
 
 
