@@ -3,7 +3,11 @@ import venv
 from pathlib import Path
 from typing import List
 
+from colored import attr, fg, stylize
 from invoke import Collection, task
+
+
+ECHO_STYLE = fg("light_gray") + attr("bold")
 
 
 os.environ.setdefault("DM_ENVIRONMENT", "development")
@@ -21,14 +25,14 @@ def show_environment(c):
 @task
 def virtualenv(c):
     if not os.getenv("VIRTUAL_ENV") and not Path("venv").exists():
-        print("\033[1;37mcreating virtualenv at `venv`\033[0m")
+        print(stylize("creating virtualenv at `venv`", ECHO_STYLE))
         venv.create("venv", with_pip=True)
 
     c.virtual_env = Path(os.getenv("VIRTUAL_ENV", "venv"))
 
     venv_path = c.virtual_env.resolve() / "bin"
     if not os.environ["PATH"].startswith(str(venv_path)):
-        print(f"\033[1;37mentering virtualenv at `{c.virtual_env}`\033[0m")
+        print(stylize(f"entering virtualenv at `{c.virtual_env}`", ECHO_STYLE))
         os.environ["PATH"] = f"{venv_path}:{os.getenv('PATH')}"
 
     # skip if dry run

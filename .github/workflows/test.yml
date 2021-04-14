@@ -27,7 +27,7 @@ jobs:
         restore-keys: venv-${{ runner.os }}-${{ steps.ubuntu-version.outputs.UBUNTU_VERSION }}-${{ matrix.python-version }}-
 
     - name: Install developer tools
-      run: make bootstrap
+      run: pip install .
 
     - name: Install python dependencies
       run: invoke requirements-dev
